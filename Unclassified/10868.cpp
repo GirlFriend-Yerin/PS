@@ -1,100 +1,49 @@
-/*
-	2019-08-07
-	10868 최솟값
-	세그먼트 트리
-
-*/
 #include <iostream>
+#include <vector>
+#include <cmath>
 
 using namespace std;
 
-const int LENGTH_MAX = 100000;
-const int VALUE_MAX = 1e9 + 5;
+const int INF = 1e9 + 7;
 
-int _min(const int a, const int b) { return b ^ ((a ^ b) & -(a < b)); }
+int _min(const int a, const int b) { return b ^ ((a^b) & -(a < b)); }
 
-struct Node {
-	int start;
-	int end;
-	int value;
+void _insert(vector<int>& tree, int node, int start, int end, int idx, int val) {
+	if (!(start <= idx && idx <= end)) return;
 
-	Node() {}
-};
+	tree[node] = _min(tree[node], val);
 
-class SegmentTree {
-
-public:
-	void init(int cnt) {
-		size = cnt;
-		_init(1, cnt, 1);
+	if (start != end) {
+		_insert(tree, node * 2, start, (start + end) / 2, idx, val);
+		_insert(tree, node * 2 + 1, (start + end) / 2 + 1, end, idx, val);
 	}
-	void _init(int start, int end, int pos) {
-		tree[pos].start = start;
-		tree[pos].end = end;
-		tree[pos].value = VALUE_MAX;
+}
 
-		if (start != end) {
-			_init(start, (start + end) / 2, pos * 2);
-			_init((start + end) / 2 + 1, end, pos * 2 + 1);
-		}
-	}
+int _find(vector<int>& tree, int node, int start, int end, int left, int right) {
+	if (left > end || right < start) return INF;
 
-	int find(int start, int end) {
-		return _find(start, end, 1);
-	}
+	if (left <= start && end <= right) return tree[node];
 
-	int _find(int start, int end, int pos) {
-		if (start > tree[pos].end || end < tree[pos].start)
-			return VALUE_MAX;
-
-		cout << start << ',' << end << '\n';
-
-		if (start <= tree[pos].start && tree[pos].end <= end)
-			return tree[pos].value;
-
-
-		return _min(_find(start, (start + end) / 2, pos * 2), _find((start + end) / 2 + 1, end, pos * 2 + 1));
-	}
-
-	void change(int pos, const int value) {
-		_change(pos, 1, value);
-	}
-
-	void _change(int idx, int pos, const int value) {
-		if (tree[pos].start <= idx && idx <= tree[pos].end) {
-			tree[pos].value = _min(tree[pos].value, value);
-
-			if (tree[pos].start != tree[pos].end) {
-				_change(idx, pos * 2, value);
-				_change(idx, pos * 2 + 1, value);
-			}
-		}
-	}
-private:
-	int size;
-	Node tree[LENGTH_MAX * 2 - 1];
-};
+	return _min(_find(tree, node * 2, start, (start + end) / 2, left, right), _find(tree, node * 2 + 1, (start + end) / 2 + 1, end, left, right));
+}
 
 int main()
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(0);
 
-	SegmentTree segTree;
-
 	int n, m; cin >> n >> m;
-	segTree.init(n);
-
+	int h = ceil(log2(n));
+	vector<int> segTree(1 << (1 + h), INF);
 	for (int i = 0; i < n; i++) {
 		int val; cin >> val;
-		segTree.change(i + 1, val);
+		_insert(segTree, 1, 1, n, i + 1, val);
 	}
 
-	for (int j = 0; j < m; j++) {
+	for (int i = 0; i < m; i++) {
 		int to, des; cin >> to >> des;
-
-		cout << "To - " << to << " Des - " << des << '\n';
-		cout << segTree.find(to, des) << '\n';
+		cout << _find(segTree, 1, 1, n, to, des) << '\n';
 	}
+
 	return 0;
 }
