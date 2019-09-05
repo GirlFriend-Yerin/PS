@@ -11,18 +11,13 @@ int main()
 	cin.tie(0);
 
 	int n, m; cin >> n >> m;
-	vector<pair<int, int>> nodes(m);
 	vector<vector<int>> adj(n + 1);
 	vector<int> incomeCnt(n + 1);
 
-	for (int i = 0; i < m; i++)
-		cin >> nodes[i].second >> nodes[i].first;
-
-	sort(nodes.begin(), nodes.end());
-
 	for (int i = 0; i < m; i++) {
-		adj[nodes[i].second].push_back(nodes[i].first);
-		incomeCnt[nodes[i].first]++;
+		int to, des; cin >> to >> des;
+		adj[to].push_back(des);
+		incomeCnt[des]++;
 	}
 
 	priority_queue<int> q;
