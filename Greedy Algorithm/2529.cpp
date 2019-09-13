@@ -1,44 +1,69 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 const short MAX = 9;
+
+int n;
+char oper[MAX + 1];
+
+bool validation(const vector<int>& vec) {
+	for (int i = 0; i < n; i++) {
+		if (oper[i] == '<') {
+			if (vec[i] > vec[i + 1])
+				return false;
+		}
+		else {
+			if (vec[i] < vec[i + 1])
+				return false;
+		}
+	}
+	return true;
+}
+
+bool dfs(vector<int>& vec,vector<bool>& visited,const int pos,const bool topDown) {
+
+	if (pos == n + 1) 
+		return validation(vec);
+	
+	for (int i = (topDown ? 9 : 0); (topDown ? i >= 0 : i < 10); i += (topDown ? -1 : 1)) {
+		if (visited[i]) continue;
+		visited[i] = true;
+		vec[pos] = i;
+		if (dfs(vec, visited, pos + 1, topDown))
+			return true;
+
+		visited[i] = false;
+	}
+
+	return false;
+}
 
 int main()
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(0);
 
-	int n; cin >> n;
-	char oper[MAX + 1];
-	short greater = 0;
-	short smaller = 0;
-	for (int i = 0; i < n; i++) {
+	cin >> n;
+	vector<int> vec(10);
+	vector<bool> visited(10);
+
+	for (int i = 0; i < n; i++)
 		cin >> oper[i];
-		greater += oper[i] == '>';
-		smaller += oper[i] == '<';
-	}
 
-	// greater
-	short gg = 9 - smaller;
-	short gs = 9 - n + 1;
+	dfs(vec, visited, 0, true);
+	for (int i = 0; i < n + 1; i++)
+		cout << vec[i] << ' ';
+	cout << '\n';
 
-	char res[MAX + 1] = {};
-	res[0] = gg + '0'; 
+	for (int i = 0; i < 10; i++)
+		visited[i] = false;
 
-	for (int i = 1; i < n + 1; i++)
-		res[i] = (oper[i - 1] == '<' ? ++gg : --gs) + '0';
+	dfs(vec, visited, 0, false);
+	for (int i = 0; i < n + 1; i++)
+		cout << vec[i] << ' ';
+	cout << '\n';
 
-	cout << res << '\n';
-
-	// smaller
-	short sg = n - smaller;
-	short ss = greater - 1;
-
-	res[0] = sg + '0';
-	for (int i = 1; i < n + 1; i++)
-		res[i] = (oper[i - 1] == '<' ? ++sg : ss-- ) + '0';
-
-	cout << res << '\n';
 	return 0;
 }
