@@ -25,7 +25,7 @@ int main()
 	int rightPivot = n - 1;
 	int last = 0;
 
-	for (int i = 0; (input[rightPivot] > last || input[leftPivot] > last) && i < n; i++) {
+	for (int i = 0; leftPivot < rightPivot && i < n; i++) {
 		if (input[leftPivot] > last && input[rightPivot] > last) {
 			if (input[leftPivot] < input[rightPivot]) {
 				res[cnt++] = 'L';
@@ -40,10 +40,14 @@ int main()
 		{
 			res[cnt++] = 'R';
 			last = input[rightPivot--];
+
+			while (input[rightPivot] == last) rightPivot--;
 		}
 		else if (input[rightPivot] <= last) {
 			res[cnt++] = 'L';
 			last = input[leftPivot++];
+
+			while (input[leftPivot] == last) leftPivot++;
 		}
 	}
 
