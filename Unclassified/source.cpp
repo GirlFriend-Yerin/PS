@@ -1,55 +1,78 @@
 #include <iostream>
+#include <vector>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
-const short MAX = 10;
+int main() {
 
-string result;
+	int n, w; cin >> n >> w;
+	vector<vector<string>> vec(n, vector<string>(n));
 
-int main()
-{
-	char input[MAX + 1];
-	string res;
-	bool flag = false;
+	for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) cin >> vec[i][j];
 
-	cin >> input;
+	int line = ceil(n / 2);
 
-	int len = strlen(input);
+	vector<vector<string>> out(line + (n % 2));
+	for (int i = 0; i < line + (n % 2); i++) {
 
-	for (int i = 0; i < len; i++)
-	{
-		if (!flag)
-		{
-			if (input[i] < '3')
-			{
-				res += '0';
-				flag = true;
-			}
-			else if (input[i] == '3')
-				res += '3';
-			else if (input[i] < '6')
-			{
-				res += '3';
-				flag = true;
-			}
-			else if (input[i] == '6')
-				res += '3';
-			else if (input[i] < '9')
-			{
-				res += '6';
-				flag = true;
-			}
-			else
-				res += '9';
-		}
-		else
-		{
-			res += '9';
-		}
+		// top
+		for (int j = i; j < n - i; j++)
+			out[i].push_back(vec[i][j]);
+
+		// right
+		for (int j = i + 1; j < n - i; j++)
+			out[i].push_back(vec[j][n - 1 - i]);
+
+		// bottom
+		for (int j = n - 2 - i; j >= i; j--)
+			out[i].push_back(vec[n - 1 - i][j]);
+
+		// left
+		for (int j = n - 2 - i; j > i; j--)
+			out[i].push_back(vec[j][i]);
 	}
-	
-	cout << stoi(res);
+
+	vector<vector<string>> move(line + (n % 2));
+
+	bool flag = w < 0;
+	for (int i = 0; i < line + (n % 2); i++) {
+		int size = out[i].size();
+		int startPos = (abs(w) % size) * (flag ? 1 : -1);
+		for (int j = 0; j < size; j++) {
+			move[i].push_back(out[i][(startPos + j + size) % size]);
+		}
+		flag != flag;
+	}
+
+	for (int i = 0; i < line + (n % 2); i++) {
+		int pos = 0;
+
+		// top
+		for (int j = i; j < n - i; j++)
+			vec[i][j] = move[i][pos++];
+
+		// right
+		for (int j = i + 1; j < n - i; j++)
+			vec[j][n - 1 - i] = move[i][pos++];
+
+		// bottom
+		for (int j = n - 2 - i; j >= i; j--)
+			vec[n - 1 - i][j] = move[i][pos++];
+
+		// left
+		for (int j = n - 2 - i; j > i; j--)
+			vec[j][i] = move[i][pos++];
+
+	}
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++)
+			cout << vec[i][j] << ' ';
+		cout << '\n';
+	}
+
 
 	return 0;
 }

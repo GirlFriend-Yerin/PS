@@ -12,11 +12,12 @@ int main()
 	ll res; cin >> res;
 	ll cnt = 10;
 
-	while (cnt < 1e10) {
-		if (res % cnt >= 5)
-			res += cnt * 10;
-		cnt *= 10;
+	while (true) {
+		ll cur = res % cnt * 10 / cnt;
+
+		
 	}
+
 	
 	cout << res;
 
