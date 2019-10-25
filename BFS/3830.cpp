@@ -1,105 +1,83 @@
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <iostream>
 #include <vector>
 #include <queue>
 
 using namespace std;
 
-struct Relation {
-	int des;
-	int weight;
+const int INF = 1e9;
 
-	Relation() : des(0), weight(0){}
-	Relation(int des, int weight) : des(des), weight(weight) {} 
-};
+typedef pair<int, int> pii;
 
-int func(int n, int to, int des, vector<vector<Relation>>& par, vector<vector<Relation>>& child)
-{
-	queue<int> posQ;
-	queue<int> weiQ;
+int getWeight(const vector<vector<pii>>& adj, int start, int des) {
 
-	bool visited[1000000];
-	int res = -1000001;
+	vector<bool> visited(adj.size());
+	queue<pii> q;
+	visited[start] = true;
+	q.push({ start, 0 });
 
-	fill_n(visited, n, false);
+	while (!q.empty()) {
+		pii cur = q.front(); q.pop();
 
-	posQ.push(to);
-	weiQ.push(0);
+		if (cur.first == des)
+			return cur.second;
 
-	while (!posQ.empty())
-	{
-		int cur = posQ.front();
-		int curWeight = weiQ.front();
+		int childrenCount = adj[cur.first].size();
+		for (int i = 0; i < childrenCount; i++) {
+			int next = adj[cur.first][i].first;
+			int diff = adj[cur.first][i].second;
 
-		if (cur == des)
-		{
-			res = curWeight;
-			break;
-		}
-
-		posQ.pop();
-		weiQ.pop();
-
-		if (visited[cur])
-			continue;
-
-		visited[cur] = true;
-
-		for (Relation r : par[cur])
-		{
-			if (visited[r.des])
-				continue;
-			posQ.push(r.des);
-			weiQ.push(r.weight + curWeight);
-		}
-
-		for (Relation r : child[cur])
-		{
-			if (visited[r.des])
-				continue;
-			posQ.push(r.des);
-			weiQ.push(r.weight + curWeight);
+			if (!visited[next]) {
+				visited[next] = true;
+				q.push({ next, cur.second + diff });
+			}
 		}
 	}
 
-	return res;
+	return INF;
+}
+
+int find(vector<int>& par, int v) {
+	return v == par[v] ? v : par[v] = find(par, par[v]);
+}
+
+void _union(vector<int>& par, int left, int right) {
+	int leftPar = find(par, left);
+	int rightPar = find(par, right);
+
+	if (leftPar != rightPar)
+		par[left] = right;
 }
 
 int main()
 {
-	int n, m;
+	ios_base::sync_with_stdio(false);
+	cin.tie(0);
 
-	cin >> n >> m;
+	int n, m; cin >> n >> m;
+	while (n && m) {
+		vector<vector<pii>> adj(n);
+		vector<int> parent(n);
+		for (int i = 0; i < n; i++) parent[i] = i;
 
-	while (n != 0 && m != 0)
-	{
-		vector<vector<Relation>> parent(n);
-		vector<vector<Relation>> child(n);
+		for (int i = 0; i < m; i++) {
+			char order; cin >> order;
 
-		for (int i = 0; i < m; i++)
-		{
-			char order;
-			int to, des, w;
-			
-			scanf(" %c", &order);
 			if (order == '!')
 			{
-				scanf("%d %d %d", &to, &des, &w);
-				parent[to - 1].push_back(Relation(des - 1, w));
-				child[des - 1].push_back(Relation(to - 1, -w));
+				int to, des, weight; cin >> to >> des >> weight;
+				_union(parent, to - 1, des - 1);
+				adj[to - 1].push_back({ des - 1, weight });
+				adj[des - 1].push_back({ to - 1 , -weight });
 			}
-			else if (order == '?')
-			{
-				scanf("%d %d", &to, &des);
+			else {
+				int to, des; cin >> to >> des;
 
-				int diff = func(n, to - 1, des - 1, parent, child);
-				if (diff == -1000001)
-					printf("UNKNOWN\n");
+				if (find(parent, to - 1) != find(parent, des - 1))
+					cout << "UNKNOWN\n";
 				else
-					printf("%d\n", diff);
-
+					cout << getWeight(adj, to - 1, des - 1) << '\n';
 			}
+
 		}
 
 		cin >> n >> m;
