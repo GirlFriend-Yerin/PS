@@ -5,8 +5,19 @@
 
 using namespace std;
 
-int solve(vector<int>& height)
+int N;
+
+int main(void)
 {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+
+	cin >> N;
+	vector<int> height(N + 1);
+
+	for (int i = 0; i < N; i++) cin >> height[i];
+
+	//제일 끝 울타리 높이가 i번째 울타리 높이보다 작아야 범위가 설정됨
 	stack<int> remaining;
 
 	int result = 0;
@@ -28,22 +39,7 @@ int solve(vector<int>& height)
 		remaining.push(i); //스택에 집어넣는다
 	}
 
-	return result;
-}
-
-int main(void)
-{
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
-
-	while (true)
-	{
-		int k; cin >> k;
-		if (!k) break;
-
-		vector<int> h(k + 1); for (int i = 0; i < k; i++) cin >> h[i];
-		cout << solve(h) << '\n';
-	}
+	cout << result << "\n";
 
 	return 0;
 }

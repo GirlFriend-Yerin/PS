@@ -1,43 +1,63 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
-const short MAX = 9;
+const int MAX = 10;
 
-int n;
-char oper[MAX + 1];
+void toZero(char opers[MAX], const int& n)
+{
+	int res[MAX] = { };
+	int last = n;
+	int cur = n -1;
+	int max = n;
 
-bool validation(const vector<int>& vec) {
-	for (int i = 0; i < n; i++) {
-		if (oper[i] == '<') {
-			if (vec[i] > vec[i + 1])
-				return false;
+	while (cur >= 0) {
+		int cnt = 0;
+		while (cur >= 0 && opers[cur] == '>') {
+			cur--;
+			cnt++;
 		}
-		else {
-			if (vec[i] < vec[i + 1])
-				return false;
-		}
+
+		for (int i = cnt; i >= 0; i--)
+			res[last--] = max - i;
+		max -= cnt + 1;
+		cur--;
 	}
-	return true;
+
+	while (last >= 0)
+		res[last--] = max--;
+
+	for (int i = 0; i <= n; i++)
+		cout << res[i];
+	cout << '\n';
 }
 
-bool dfs(vector<int>& vec,vector<bool>& visited,const int pos,const bool topDown) {
-
-	if (pos == n + 1) 
-		return validation(vec);
+void toNine(char opers[MAX], const int& n)
+{
+	int res[MAX] = { };
+	int last = 0;
+	int cur = 0;
+	int max = 9;
 	
-	for (int i = (topDown ? 9 : 0); (topDown ? i >= 0 : i < 10); i += (topDown ? -1 : 1)) {
-		if (visited[i]) continue;
-		visited[i] = true;
-		vec[pos] = i;
-		if (dfs(vec, visited, pos + 1, topDown))
-			return true;
+	while (cur < n) {
+		int cnt = 0;
+		while (cur < n && opers[cur] == '<') {
+			cur++;
+			cnt++;
+		}
 
-		visited[i] = false;
+		for (int i = cnt; i >= 0; i--)
+			res[last++] = max - i;
+		max -= cnt + 1;
+		cur++;
 	}
 
-	return false;
+	while (last <= n)
+		res[last++] = max--;
+
+	for (int i = 0; i <= n; i++)
+		cout << res[i];
+	cout << '\n';
 }
 
 int main()
@@ -45,25 +65,11 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(0);
 
-	cin >> n;
-	vector<int> vec(10);
-	vector<bool> visited(10);
+	int n; cin >> n;
+	char oper[MAX] = {}; for (int i = 0; i < n; i++) cin >> oper[i];
 
-	for (int i = 0; i < n; i++)
-		cin >> oper[i];
-
-	dfs(vec, visited, 0, true);
-	for (int i = 0; i < n + 1; i++)
-		cout << vec[i] << ' ';
-	cout << '\n';
-
-	for (int i = 0; i < 10; i++)
-		visited[i] = false;
-
-	dfs(vec, visited, 0, false);
-	for (int i = 0; i < n + 1; i++)
-		cout << vec[i] << ' ';
-	cout << '\n';
+	toNine(oper, n);
+	toZero(oper, n);
 
 	return 0;
 }
